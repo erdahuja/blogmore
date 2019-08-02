@@ -46,6 +46,7 @@ func init() {
 	homeView = views.New("./views/home.gohtml")
 	profileView = views.New("./views/profile.gohtml")
 	signUpView = views.New("./views/signUp.gohtml")
+	loginView = views.New("./views/login.gohtml")
 }
 
 func main() {
