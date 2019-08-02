@@ -1,6 +1,6 @@
 package views
 
-import "text/template"
+import "html/template"
 
 type View struct {
 	Err      error
