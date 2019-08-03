@@ -35,7 +35,7 @@ func layoutFiles() []string {
 
 // Render the view
 func (v *View) Render(w http.ResponseWriter, lyt string, data interface{}) error {
-	if err := v.Template.ExecuteTemplate(w, lyt, nil); err != nil {
+	if err := v.Template.ExecuteTemplate(w, lyt, data); err != nil {
 		return (err)
 	}
 	return nil
