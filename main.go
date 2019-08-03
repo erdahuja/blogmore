@@ -32,8 +32,8 @@ func pageNotFoundFunc(w http.ResponseWriter, r *http.Request) {
 }
 
 func init() {
-	homeView = views.New("views/home.gohtml")
-	profileView = views.New("views/profile.gohtml")
+	homeView = views.New("home")
+	profileView = views.New("users/profile")
 }
 
 func main() {
@@ -43,7 +43,8 @@ func main() {
 	router.HandleFunc("/profile", profileFunc)
 	router.HandleFunc("/signup", usersC.New).Methods("GET")
 	router.HandleFunc("/signup", usersC.Create).Methods("POST")
-	router.HandleFunc("/login", usersC.Login).Methods("POST")
+	router.HandleFunc("/login", usersC.Login).Methods("GET")
+	router.HandleFunc("/login", usersC.LoginAction).Methods("POST")
 	router.NotFoundHandler = http.HandlerFunc(pageNotFoundFunc)
 	http.ListenAndServe(":3000", router)
 }

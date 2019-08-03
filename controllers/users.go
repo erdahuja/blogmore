@@ -9,8 +9,8 @@ import (
 // NewUsers represting new users view
 func NewUsers() *Users {
 	return &Users{
-		NewView:   views.New("views/users/new.gohtml"),
-		LoginView: views.New("views/users/new.gohtml"),
+		NewView:   views.New("users/new"),
+		LoginView: views.New("users/login"),
 	}
 }
 
@@ -52,6 +52,12 @@ type LoginForm struct {
 // Login signs up new user
 // POST /login API
 func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
+	u.LoginView.Render(w, "index", nil)
+}
+
+// LoginAction signs up new user
+// POST /login API
+func (u *Users) LoginAction(w http.ResponseWriter, r *http.Request) {
 	form := new(LoginForm)
 	if err := parseForm(form, r); err != nil {
 		panic(err)
