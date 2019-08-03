@@ -32,8 +32,8 @@ func pageNotFoundFunc(w http.ResponseWriter, r *http.Request) {
 }
 
 func init() {
-	homeView = views.New("./views/home.gohtml")
-	profileView = views.New("./views/profile.gohtml")
+	homeView = views.New("views/home.gohtml")
+	profileView = views.New("views/profile.gohtml")
 }
 
 func main() {
