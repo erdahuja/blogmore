@@ -43,6 +43,7 @@ func main() {
 	router.HandleFunc("/profile", profileFunc)
 	router.HandleFunc("/signup", usersC.New).Methods("GET")
 	router.HandleFunc("/signup", usersC.Create).Methods("POST")
+	router.HandleFunc("/login", usersC.Login).Methods("POST")
 	router.NotFoundHandler = http.HandlerFunc(pageNotFoundFunc)
 	http.ListenAndServe(":3000", router)
 }

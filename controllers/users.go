@@ -20,29 +20,41 @@ type Users struct {
 	LoginView *views.View
 }
 
-// User type to represent blogmore user
-type User struct {
-	username string
-	email    string
-	password string
-}
-
 // New render
 // GET /signup view
 func (u *Users) New(w http.ResponseWriter, r *http.Request) {
 	u.NewView.Render(w, "index", nil)
 }
 
+// SignUpForm type to represent blogmore user register
+type SignUpForm struct {
+	Name     string `schema:"name"`
+	Email    string `schema:"email"`
+	Password string `schema:"password"`
+}
+
 // Create signs up new user
 // POST /signup API
 func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("new user crreated")
-	u.NewView.Render(w, "index", "i am created")
+	form := new(SignUpForm)
+	if err := parseForm(form, r); err != nil {
+		panic(err)
+	}
+	fmt.Fprint(w, form)
+}
+
+// LoginForm type to represent blogmore user login
+type LoginForm struct {
+	Email    string `schema:"email"`
+	Password string `schema:"password"`
 }
 
 // Login signs up new user
 // POST /login API
 func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("login user")
-	u.LoginView.Render(w, "index", "i am created")
+	form := new(LoginForm)
+	if err := parseForm(form, r); err != nil {
+		panic(err)
+	}
+	fmt.Fprint(w, form)
 }
