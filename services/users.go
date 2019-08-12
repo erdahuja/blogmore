@@ -4,8 +4,6 @@ import (
 	"blogmore/db"
 	"blogmore/models"
 	"errors"
-
-	"github.com/jinzhu/gorm"
 )
 
 var (
@@ -20,7 +18,6 @@ type UserService struct{}
 
 // ByID will lookup user in db for provided id
 // if user found, return user
-// if user not found by id, return ErrNotFound (For Status 500)
 // if any other error, return error with more information
 func (us *UserService) ByID(id uint) (*models.User, error) {
 	var user models.User
@@ -30,8 +27,6 @@ func (us *UserService) ByID(id uint) (*models.User, error) {
 	switch err {
 	case nil:
 		return &user, nil
-	case gorm.ErrRecordNotFound:
-		return nil, ErrNotFound
 	default:
 		return nil, err
 	}
