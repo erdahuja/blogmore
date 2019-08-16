@@ -12,7 +12,7 @@ import (
 var envVars map[string]string
 
 func init() {
-	envVars, err := godotenv.Read("../development.env")
+	envVars, err := godotenv.Read("development.env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -20,12 +20,18 @@ func init() {
 
 // Database exposes db instance and related services
 type Database struct {
-	db *gorm.DB
+	Db *gorm.DB
 }
 
 // New create a connection to database
 func New() *Database {
-	dbConnString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", envVars["User"], envVars["Password"], envVars["URL"], envVars["Port"], envVars["Database"])
+	fmt.Println(envVars)
+	user := envVars["User"]
+	pwd := envVars["Password"]
+	url := envVars["URL"]
+	port := envVars["Port"]
+	dbName := envVars["Database"]
+	dbConnString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", user, pwd, url, port, dbName)
 	db, err := gorm.Open("postgres", dbConnString)
 	if err != nil {
 		log.Println(dbConnString)
@@ -37,11 +43,11 @@ func New() *Database {
 		panic(err)
 	}
 	return &Database{
-		db: db,
+		Db: db,
 	}
 }
 
 // Close closes the db connection
 func (dbs *Database) Close() error {
-	return dbs.db.Close()
+	return dbs.Db.Close()
 }

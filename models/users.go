@@ -30,7 +30,7 @@ type Follow struct {
 
 // AutoMigrate the schema of database if needed
 func AutoMigrate() {
-	db := db.New()
-	db.AutoMigrate(&UserModel{})
-	db.AutoMigrate(&FollowModel{})
+	dbService := db.New()
+	dbService.Db.AutoMigrate(&User{})
+	dbService.Db.AutoMigrate(&Follow{})
 }
