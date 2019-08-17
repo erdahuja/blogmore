@@ -7,6 +7,10 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
+func init() {
+	AutoMigrate()
+}
+
 // User model represented in db
 type User struct {
 	gorm.Model
@@ -31,6 +35,8 @@ type Follow struct {
 // AutoMigrate the schema of database if needed
 func AutoMigrate() {
 	dbService := db.New()
+	dbService.Db.DropTableIfExists(&User{})
+	dbService.Db.DropTableIfExists(&Follow{})
 	dbService.Db.AutoMigrate(&User{})
 	dbService.Db.AutoMigrate(&Follow{})
 }

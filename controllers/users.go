@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"blogmore/models"
+	"blogmore/services"
 	"blogmore/views"
 	"fmt"
 	"net/http"
@@ -28,18 +30,25 @@ func (u *Users) New(w http.ResponseWriter, r *http.Request) {
 
 // SignUpForm type to represent blogmore user register
 type SignUpForm struct {
-	Name     string `schema:"name"`
+	Username string `schema:"username"`
 	Email    string `schema:"email"`
 	Password string `schema:"password"`
 }
 
-// Create signs up new user
+// SignUp signs up new user
 // POST /signup API
-func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
+func (u *Users) SignUp(w http.ResponseWriter, r *http.Request) {
 	form := new(SignUpForm)
 	if err := parseForm(form, r); err != nil {
 		panic(err)
 	}
+	user := models.User{
+		Username: form.Username,
+		Email:    form.Email,
+		Token:    form.Password,
+	}
+	var us services.UserService
+	us.Create(&user)
 	fmt.Fprint(w, form)
 }
 

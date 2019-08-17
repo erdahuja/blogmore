@@ -12,10 +12,12 @@ import (
 var envVars map[string]string
 
 func init() {
-	envVars, err := godotenv.Read("development.env")
+	var err error
+	envVars, err = godotenv.Read("development.env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+	fmt.Println("Env variables are intialized...")
 }
 
 // Database exposes db instance and related services
@@ -25,7 +27,6 @@ type Database struct {
 
 // New create a connection to database
 func New() *Database {
-	fmt.Println(envVars)
 	user := envVars["User"]
 	pwd := envVars["Password"]
 	url := envVars["URL"]

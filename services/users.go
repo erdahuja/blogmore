@@ -86,13 +86,12 @@ func (us *UserService) Update(user *models.User) (*models.User, error) {
 }
 
 // Delete user record by ID
-func (us *UserService) Delete(id uint) (error) {
-	if id === 0 {
-		return nil, InvalidId
+func (us *UserService) Delete(id uint) error {
+	if id == 0 {
+		return InvalidId
 	}
 	dbService := db.New()
 	defer dbService.Close()
 	user := models.User{Model: gorm.Model{ID: id}}
-	fmt.Println("Deleting user ecord with id ", id, user)
 	return dbService.Db.Delete(&user).Error
 }
