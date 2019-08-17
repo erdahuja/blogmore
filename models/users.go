@@ -7,6 +7,7 @@ import (
 )
 
 func init() {
+	DestructiveReset()
 	AutoMigrate()
 }
 
@@ -15,7 +16,7 @@ type User struct {
 	gorm.Model
 	Username   string `gorm:"unique_index;not null"`
 	Email      string `gorm:"unique_index;not null"`
-	Password   string `gorm:"_"`
+	Password   string `gorm:"-"`
 	Token      string `gorm:"not null"`
 	Bio        string
 	Image      string
@@ -35,8 +36,13 @@ type Follow struct {
 // AutoMigrate the schema of database if needed
 func AutoMigrate() {
 	dbService := db.DBService
-	dbService.DB.DropTableIfExists(&User{})
-	dbService.DB.DropTableIfExists(&Follow{})
 	dbService.DB.AutoMigrate(&User{})
 	dbService.DB.AutoMigrate(&Follow{})
+}
+
+// DestructiveReset drops all tables
+func DestructiveReset() {
+	dbService := db.DBService
+	dbService.DB.DropTableIfExists(&User{})
+	dbService.DB.DropTableIfExists(&Follow{})
 }

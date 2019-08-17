@@ -60,7 +60,7 @@ func first(db *gorm.DB, dst interface{}) error {
 
 // Create adds a new user to db
 func (us *UserService) Create(user *models.User) (*models.User, error) {
-	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(user.Password+db.EnvVars["PwdPepper"]), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
 	}

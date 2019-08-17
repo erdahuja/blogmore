@@ -9,11 +9,12 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var envVars map[string]string
+// EnvVars exposes map of env variables
+var EnvVars map[string]string
 
 func init() {
 	var err error
-	envVars, err = godotenv.Read("development.env")
+	EnvVars, err = godotenv.Read("development.env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -35,11 +36,11 @@ var DBService Database
 
 // New create a connection to database
 func New() error {
-	user := envVars["User"]
-	pwd := envVars["Password"]
-	url := envVars["URL"]
-	port := envVars["Port"]
-	dbName := envVars["Database"]
+	user := EnvVars["User"]
+	pwd := EnvVars["Password"]
+	url := EnvVars["URL"]
+	port := EnvVars["Port"]
+	dbName := EnvVars["Database"]
 	dbConnString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", user, pwd, url, port, dbName)
 	db, err := gorm.Open("postgres", dbConnString)
 	if err != nil {
