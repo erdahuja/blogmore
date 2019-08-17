@@ -45,7 +45,7 @@ func (u *Users) SignUp(w http.ResponseWriter, r *http.Request) {
 	user := models.User{
 		Username: form.Username,
 		Email:    form.Email,
-		Password:    form.Password,
+		Password: form.Password,
 	}
 	var us services.UserService
 	userRecord, err := us.Create(&user)
@@ -75,5 +75,11 @@ func (u *Users) LoginAction(w http.ResponseWriter, r *http.Request) {
 	if err := parseForm(form, r); err != nil {
 		panic(err)
 	}
-	fmt.Fprint(w, form)
+	var us services.UserService
+	userRecord, err := us.Login(form.Email, form.Password)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprint(w, userRecord)
 }

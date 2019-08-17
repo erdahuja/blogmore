@@ -4,6 +4,7 @@ import (
 	"blogmore/db"
 	"blogmore/models"
 	"errors"
+	"fmt"
 
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
@@ -14,6 +15,8 @@ var (
 	ErrNotFound = errors.New("user model: resource not found")
 	// ErrInvalidID when resource is nnot found in db
 	ErrInvalidID = errors.New("invalid id for user record")
+	// ErrInvalidPassword when invalid password is provided
+	ErrInvalidPassword = errors.New("invalid password for user")
 )
 
 // UserService are methods that can be operated on user model
@@ -41,6 +44,26 @@ func (us *UserService) ByEmail(email string) (*models.User, error) {
 	db := dbService.DB.Where("email=?", email)
 	err := first(db, &user)
 	return &user, err
+}
+
+// Login authenticate user with email and password
+// if success, return user
+// if error, return error with more information
+func (us *UserService) Login(email, pwd string) (*models.User, error) {
+	foundUser, err := us.ByEmail(email)
+	if err != nil {
+		return nil, err
+	}
+	if err = bcrypt.CompareHashAndPassword([]byte(foundUser.Token), []byte(pwd+db.EnvVars["PwdPepper"])); err != nil {
+		fmt.Println(err)
+		switch err {
+		case bcrypt.ErrMismatchedHashAndPassword:
+			return nil, ErrInvalidPassword
+		default:
+			return nil, err
+		}
+	}
+	return foundUser, nil
 }
 
 // first will return first record matched
