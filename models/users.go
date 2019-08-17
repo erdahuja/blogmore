@@ -34,6 +34,7 @@ type Follow struct {
 // AutoMigrate the schema of database if needed
 func AutoMigrate() {
 	dbService := db.New()
+	defer dbService.Close()
 	dbService.Db.DropTableIfExists(&User{})
 	dbService.Db.DropTableIfExists(&Follow{})
 	dbService.Db.AutoMigrate(&User{})

@@ -11,8 +11,8 @@ import (
 var (
 	// ErrNotFound when resource is nnot found in db
 	ErrNotFound = errors.New("user model: resource not found")
-	// ErrInvalidId when resource is nnot found in db
-	ErrInvalidId = errors.New("invalid id for user record")
+	// ErrInvalidID when resource is nnot found in db
+	ErrInvalidID = errors.New("invalid id for user record")
 )
 
 // UserService are methods that can be operated on user model
@@ -88,7 +88,7 @@ func (us *UserService) Update(user *models.User) (*models.User, error) {
 // Delete user record by ID
 func (us *UserService) Delete(id uint) error {
 	if id == 0 {
-		return ErrInvalidId
+		return ErrInvalidID
 	}
 	dbService := db.New()
 	defer dbService.Close()
