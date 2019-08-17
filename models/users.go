@@ -15,6 +15,7 @@ type User struct {
 	gorm.Model
 	Username   string `gorm:"unique_index;not null"`
 	Email      string `gorm:"unique_index;not null"`
+	Password   string `gorm:"_"`
 	Token      string `gorm:"not null"`
 	Bio        string
 	Image      string
@@ -33,10 +34,9 @@ type Follow struct {
 
 // AutoMigrate the schema of database if needed
 func AutoMigrate() {
-	dbService := db.New()
-	defer dbService.Close()
-	dbService.Db.DropTableIfExists(&User{})
-	dbService.Db.DropTableIfExists(&Follow{})
-	dbService.Db.AutoMigrate(&User{})
-	dbService.Db.AutoMigrate(&Follow{})
+	dbService := db.DBService
+	dbService.DB.DropTableIfExists(&User{})
+	dbService.DB.DropTableIfExists(&Follow{})
+	dbService.DB.AutoMigrate(&User{})
+	dbService.DB.AutoMigrate(&Follow{})
 }

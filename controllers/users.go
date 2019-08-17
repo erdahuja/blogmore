@@ -45,7 +45,7 @@ func (u *Users) SignUp(w http.ResponseWriter, r *http.Request) {
 	user := models.User{
 		Username: form.Username,
 		Email:    form.Email,
-		Token:    form.Password,
+		Password:    form.Password,
 	}
 	var us services.UserService
 	userRecord, err := us.Create(&user)

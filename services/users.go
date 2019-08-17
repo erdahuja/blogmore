@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/jinzhu/gorm"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -25,9 +26,8 @@ type UserService struct{}
 // if any other error, return error with more information
 func (us *UserService) ByID(id uint) (*models.User, error) {
 	var user models.User
-	dbService := db.New()
-	defer dbService.Close()
-	db := dbService.Db.Where("id=?", id)
+	dbService := db.DBService
+	db := dbService.DB.Where("id=?", id)
 	err := first(db, &user)
 	return &user, err
 }
@@ -37,9 +37,8 @@ func (us *UserService) ByID(id uint) (*models.User, error) {
 // if any other error, return error with more information
 func (us *UserService) ByEmail(email string) (*models.User, error) {
 	var user models.User
-	dbService := db.New()
-	defer dbService.Close()
-	db := dbService.Db.Where("email=?", email)
+	dbService := db.DBService
+	db := dbService.DB.Where("email=?", email)
 	err := first(db, &user)
 	return &user, err
 }
@@ -61,9 +60,13 @@ func first(db *gorm.DB, dst interface{}) error {
 
 // Create adds a new user to db
 func (us *UserService) Create(user *models.User) (*models.User, error) {
-	dbService := db.New()
-	err := dbService.Db.Create(user).Error
-	defer dbService.Close()
+	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+	user.Token = string(hashedBytes)
+	dbService := db.DBService
+	err = dbService.DB.Create(user).Error
 	switch err {
 	case nil:
 		return user, nil
@@ -74,9 +77,8 @@ func (us *UserService) Create(user *models.User) (*models.User, error) {
 
 // Update all fields in a db by PK
 func (us *UserService) Update(user *models.User) (*models.User, error) {
-	dbService := db.New()
-	err := dbService.Db.Save(user).Error
-	defer dbService.Close()
+	dbService := db.DBService
+	err := dbService.DB.Save(user).Error
 	switch err {
 	case nil:
 		return user, nil
@@ -90,8 +92,7 @@ func (us *UserService) Delete(id uint) error {
 	if id == 0 {
 		return ErrInvalidID
 	}
-	dbService := db.New()
-	defer dbService.Close()
+	dbService := db.DBService
 	user := models.User{Model: gorm.Model{ID: id}}
-	return dbService.Db.Delete(&user).Error
+	return dbService.DB.Delete(&user).Error
 }
