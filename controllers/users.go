@@ -48,8 +48,12 @@ func (u *Users) SignUp(w http.ResponseWriter, r *http.Request) {
 		Token:    form.Password,
 	}
 	var us services.UserService
-	us.Create(&user)
-	fmt.Fprint(w, form)
+	userRecord, err := us.Create(&user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprint(w, userRecord)
 }
 
 // LoginForm type to represent blogmore user login
