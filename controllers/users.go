@@ -3,6 +3,7 @@ package controllers
 import (
 	"blogmore/models"
 	"blogmore/services"
+	"blogmore/utils"
 	"blogmore/views"
 	"fmt"
 	"net/http"
@@ -39,7 +40,7 @@ type SignUpForm struct {
 // POST /signup API
 func (u *Users) SignUp(w http.ResponseWriter, r *http.Request) {
 	form := new(SignUpForm)
-	if err := parseForm(form, r); err != nil {
+	if err := utils.ParseForm(form, r); err != nil {
 		panic(err)
 	}
 	user := models.User{
@@ -72,7 +73,7 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 // POST /login API
 func (u *Users) LoginAction(w http.ResponseWriter, r *http.Request) {
 	form := new(LoginForm)
-	if err := parseForm(form, r); err != nil {
+	if err := utils.ParseForm(form, r); err != nil {
 		panic(err)
 	}
 	var us services.UserService
@@ -81,5 +82,15 @@ func (u *Users) LoginAction(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	signIn(w, userRecord)
+	http.Redirect(w, r, "/profile", http.StatusFound)
 	fmt.Fprint(w, userRecord)
+}
+
+func signIn(w http.ResponseWriter, user *models.User) {
+	cookie := http.Cookie{
+		Name:  "email",
+		Value: user.Email,
+	}
+	http.SetCookie(w, &cookie)
 }

@@ -3,11 +3,8 @@ package services
 import (
 	"blogmore/db"
 	"blogmore/models"
+	"blogmore/utils"
 	"errors"
-	"fmt"
-
-	"github.com/jinzhu/gorm"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -15,8 +12,6 @@ var (
 	ErrNotFound = errors.New("user model: resource not found")
 	// ErrInvalidID when resource is nnot found in db
 	ErrInvalidID = errors.New("invalid id for user record")
-	// ErrInvalidPassword when invalid password is provided
-	ErrInvalidPassword = errors.New("invalid password for user")
 )
 
 // UserService are methods that can be operated on user model
@@ -31,7 +26,7 @@ func (us *UserService) ByID(id uint) (*models.User, error) {
 	var user models.User
 	dbService := db.DBService
 	db := dbService.DB.Where("id=?", id)
-	err := first(db, &user)
+	err := dbService.First(db, &user)
 	return &user, err
 }
 
@@ -42,7 +37,7 @@ func (us *UserService) ByEmail(email string) (*models.User, error) {
 	var user models.User
 	dbService := db.DBService
 	db := dbService.DB.Where("email=?", email)
-	err := first(db, &user)
+	err := dbService.First(db, &user)
 	return &user, err
 }
 
@@ -54,36 +49,15 @@ func (us *UserService) Login(email, pwd string) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err = bcrypt.CompareHashAndPassword([]byte(foundUser.Token), []byte(pwd+db.EnvVars["PwdPepper"])); err != nil {
-		fmt.Println(err)
-		switch err {
-		case bcrypt.ErrMismatchedHashAndPassword:
-			return nil, ErrInvalidPassword
-		default:
-			return nil, err
-		}
+	if err := utils.CompareHashAndPassword([]byte(foundUser.Token), []byte(pwd+db.EnvVars["PwdPepper"])); err != nil {
+		return nil, err
 	}
 	return foundUser, nil
 }
 
-// first will return first record matched
-// if record found, return record
-// if any other error, return error with more information
-func first(db *gorm.DB, dst interface{}) error {
-	err := db.First(dst).Error
-	switch err {
-	case nil:
-		return nil
-	case err:
-		return err
-	default:
-		return err
-	}
-}
-
 // Create adds a new user to db
 func (us *UserService) Create(user *models.User) (*models.User, error) {
-	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(user.Password+db.EnvVars["PwdPepper"]), bcrypt.DefaultCost)
+	hashedBytes, err := utils.GenerateHash([]byte(user.Password + db.EnvVars["PwdPepper"]))
 	if err != nil {
 		return nil, err
 	}
@@ -111,11 +85,12 @@ func (us *UserService) Update(user *models.User) (*models.User, error) {
 }
 
 // Delete user record by ID
-func (us *UserService) Delete(id uint) error {
-	if id == 0 {
-		return ErrInvalidID
-	}
-	dbService := db.DBService
-	user := models.User{Model: gorm.Model{ID: id}}
-	return dbService.DB.Delete(&user).Error
-}
+// TODO search by email and then delete
+// func (us *UserService) Delete(id uint) error {
+// 	if id == 0 {
+// 		return ErrInvalidID
+// 	}
+// 	dbService := db.DBService
+// 	user := models.User{Model: gorm.Model{ID: id}}
+// 	return dbService.DB.Delete(&user).Error
+// }

@@ -62,3 +62,19 @@ func (dbs *Database) Close() error {
 	fmt.Println("closing db")
 	return dbs.DB.Close()
 }
+
+
+// First will return first record matched
+// if record found, return record
+// if any other error, return error with more information
+func (dbs *Database) First(db *gorm.DB, dst interface{}) error {
+	err := db.First(dst).Error
+	switch err {
+	case nil:
+		return nil
+	case err:
+		return err
+	default:
+		return err
+	}
+}

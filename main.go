@@ -40,12 +40,13 @@ func main() {
 	router := mux.NewRouter()
 	usersC := controllers.NewUsers()
 	router.HandleFunc("/", homeFunc)
-	router.HandleFunc("/profile", profileFunc)
+	router.HandleFunc("/profile", profileFunc).Methods("GET")
 	router.HandleFunc("/signup", usersC.New).Methods("GET")
 	router.HandleFunc("/signup", usersC.SignUp).Methods("POST")
 	router.HandleFunc("/login", usersC.Login).Methods("GET")
 	router.HandleFunc("/login", usersC.LoginAction).Methods("POST")
 	router.NotFoundHandler = http.HandlerFunc(pageNotFoundFunc)
+	fmt.Println("Server listening on PORt :3000")
 	http.ListenAndServe(":3000", router)
 }
 
