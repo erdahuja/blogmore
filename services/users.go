@@ -49,7 +49,7 @@ func (us *UserService) Login(email, pwd string) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := utils.CompareHashAndPassword([]byte(foundUser.Token), []byte(pwd+db.EnvVars["PwdPepper"])); err != nil {
+	if err := utils.CompareHashAndPassword([]byte(foundUser.PasswordHash), []byte(pwd+db.EnvVars["PwdPepper"])); err != nil {
 		return nil, err
 	}
 	return foundUser, nil
@@ -61,7 +61,7 @@ func (us *UserService) Create(user *models.User) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	user.Token = string(hashedBytes)
+	user.PasswordHash = string(hashedBytes)
 	dbService := db.DBService
 	err = dbService.DB.Create(user).Error
 	switch err {

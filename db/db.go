@@ -1,6 +1,7 @@
 package db
 
 import (
+	"blogmore/utils"
 	"fmt"
 	"log"
 
@@ -28,7 +29,8 @@ func init() {
 
 // Database exposes db instance and related services
 type Database struct {
-	DB *gorm.DB
+	DB   *gorm.DB
+	hmac utils.HMAC
 }
 
 // DBService is database instance
@@ -54,6 +56,8 @@ func New() error {
 		return err
 	}
 	DBService.DB = db
+	hmac := utils.NewHMAC(EnvVars["HMACKey"])
+	DBService.hmac = hmac
 	return nil
 }
 
@@ -62,7 +66,6 @@ func (dbs *Database) Close() error {
 	fmt.Println("closing db")
 	return dbs.DB.Close()
 }
-
 
 // First will return first record matched
 // if record found, return record

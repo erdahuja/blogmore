@@ -1,9 +1,13 @@
 package utils
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"hash"
 	"net/http"
 
 	schema "github.com/gorilla/Schema"
@@ -49,4 +53,25 @@ func CompareHashAndPassword(token []byte, pwd []byte) error {
 		}
 	}
 	return nil
+}
+
+// HMAC is a wrapper around crypt/hmac pkg
+type HMAC struct {
+	hmac hash.Hash
+}
+
+// NewHMAC creates and returns new hmac object
+func NewHMAC(key string) HMAC {
+	h := hmac.New(sha256.New, []byte(key))
+	return HMAC{
+		hmac: h,
+	}
+}
+
+// Hash generates hash for given input with secret key of hmac object
+func (h HMAC) Hash(input string) string {
+	h.hmac.Reset()
+	h.hmac.Write([]byte(input))
+	b := h.hmac.Sum(nil)
+	return base64.URLEncoding.EncodeToString(b)
 }
