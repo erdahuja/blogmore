@@ -30,7 +30,7 @@ func init() {
 // Database exposes db instance and related services
 type Database struct {
 	DB   *gorm.DB
-	hmac utils.HMAC
+	Hmac utils.HMAC
 }
 
 // DBService is database instance
@@ -57,7 +57,7 @@ func New() error {
 	}
 	DBService.DB = db
 	hmac := utils.NewHMAC(EnvVars["HMACKey"])
-	DBService.hmac = hmac
+	DBService.Hmac = hmac
 	return nil
 }
 

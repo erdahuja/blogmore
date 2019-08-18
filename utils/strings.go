@@ -15,7 +15,6 @@ func CreateRandomByteSlice(n int) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(b)
 	return b, nil
 }
 

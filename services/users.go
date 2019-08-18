@@ -41,6 +41,19 @@ func (us *UserService) ByEmail(email string) (*models.User, error) {
 	return &user, err
 }
 
+// ByRemember looks up a user by remember token,
+// it will handle hashing for us
+func (us *UserService) ByRemember(token string) (*models.User, error) {
+	dbService := db.DBService
+	hashedToken := dbService.Hmac.Hash(token)
+	var user models.User
+	db := dbService.DB.Where("remember_token=?", hashedToken)
+	if err := dbService.First(db, &user); err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
 // Login authenticate user with email and password
 // if success, return user
 // if error, return error with more information
@@ -63,6 +76,9 @@ func (us *UserService) Create(user *models.User) (*models.User, error) {
 	}
 	user.PasswordHash = string(hashedBytes)
 	dbService := db.DBService
+	if user.RememberToken != "" {
+		user.RememberTokenHash = dbService.Hmac.Hash(user.RememberToken)
+	}
 	err = dbService.DB.Create(user).Error
 	switch err {
 	case nil:
@@ -75,6 +91,9 @@ func (us *UserService) Create(user *models.User) (*models.User, error) {
 // Update all fields in a db by PK
 func (us *UserService) Update(user *models.User) (*models.User, error) {
 	dbService := db.DBService
+	if user.RememberToken != "" {
+		user.RememberTokenHash = dbService.Hmac.Hash(user.RememberToken)
+	}
 	err := dbService.DB.Save(user).Error
 	switch err {
 	case nil:

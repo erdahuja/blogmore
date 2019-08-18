@@ -54,7 +54,12 @@ func (u *Users) SignUp(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprint(w, userRecord)
+	err = signIn(w, userRecord)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/profile", http.StatusFound)
 }
 
 // LoginForm type to represent blogmore user login
@@ -82,15 +87,31 @@ func (u *Users) LoginAction(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	signIn(w, userRecord)
+	err = signIn(w, userRecord)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	http.Redirect(w, r, "/profile", http.StatusFound)
 	fmt.Fprint(w, userRecord)
 }
 
-func signIn(w http.ResponseWriter, user *models.User) {
+func signIn(w http.ResponseWriter, user *models.User) error {
+	if user.RememberToken == "" {
+		token, err := utils.RememberToken()
+		if err != nil {
+			return err
+		}
+		user.RememberToken = token
+		var us services.UserService
+		_, err = us.Update(user)
+		if err != nil {
+			return err
+		}
+	}
 	cookie := http.Cookie{
-		Name:  "email",
-		Value: user.Email,
+		Name:  "remember_token",
+		Value: user.RememberToken,
 	}
 	http.SetCookie(w, &cookie)
 }
