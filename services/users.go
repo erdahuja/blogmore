@@ -47,7 +47,7 @@ func (us *UserService) ByRemember(token string) (*models.User, error) {
 	dbService := db.DBService
 	hashedToken := dbService.Hmac.Hash(token)
 	var user models.User
-	db := dbService.DB.Where("remember_token=?", hashedToken)
+	db := dbService.DB.Where("remember_token_hash=?", hashedToken)
 	if err := dbService.First(db, &user); err != nil {
 		return nil, err
 	}
