@@ -1,6 +1,7 @@
 package main
 
 import (
+	"blogmore/services"
 	"fmt"
 	"net/http"
 
@@ -22,7 +23,18 @@ func homeFunc(w http.ResponseWriter, r *http.Request) {
 
 func profileFunc(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	must(profileView.Render(w, "index", nil))
+	cookie, err := r.Cookie("remember_token")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	var us services.UserService
+	user, err := us.ByRemember(cookie.Value)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	must(profileView.Render(w, "index", user))
 }
 
 func pageNotFoundFunc(w http.ResponseWriter, r *http.Request) {

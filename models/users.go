@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	DestructiveReset()
+	// DestructiveReset()
 	AutoMigrate()
 }
 
