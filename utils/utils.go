@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"hash"
 	"net/http"
@@ -45,12 +44,7 @@ func GenerateHash(byteSlice []byte) ([]byte, error) {
 // CompareHashAndPassword returns bool error if password and hash doesn't match
 func CompareHashAndPassword(token []byte, pwd []byte) error {
 	if err := bcrypt.CompareHashAndPassword(token, pwd); err != nil {
-		switch err {
-		case bcrypt.ErrMismatchedHashAndPassword:
-			return errors.New("invalid password for user")
-		default:
-			return err
-		}
+		return err
 	}
 	return nil
 }

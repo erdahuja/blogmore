@@ -10,10 +10,11 @@ import (
 )
 
 // NewUsers represting new users view
-func NewUsers() *Users {
+func NewUsers(us services.UserService) *Users {
 	return &Users{
 		NewView:   views.New("users/new"),
 		LoginView: views.New("users/login"),
+		us:        us,
 	}
 }
 
@@ -21,6 +22,7 @@ func NewUsers() *Users {
 type Users struct {
 	NewView   *views.View
 	LoginView *views.View
+	us        services.UserService
 }
 
 // New render
@@ -48,13 +50,12 @@ func (u *Users) SignUp(w http.ResponseWriter, r *http.Request) {
 		Email:    form.Email,
 		Password: form.Password,
 	}
-	var us services.UserService
-	userRecord, err := us.Create(&user)
+	userRecord, err := u.us.Create(&user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	err = signIn(w, userRecord)
+	err = u.signIn(w, userRecord)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -81,13 +82,12 @@ func (u *Users) LoginAction(w http.ResponseWriter, r *http.Request) {
 	if err := utils.ParseForm(form, r); err != nil {
 		panic(err)
 	}
-	var us services.UserService
-	userRecord, err := us.Login(form.Email, form.Password)
+	userRecord, err := u.us.Login(form.Email, form.Password)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	err = signIn(w, userRecord)
+	err = u.signIn(w, userRecord)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -96,15 +96,14 @@ func (u *Users) LoginAction(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, userRecord)
 }
 
-func signIn(w http.ResponseWriter, user *models.User) error {
+func (u *Users) signIn(w http.ResponseWriter, user *models.User) error {
 	if user.RememberToken == "" {
 		token, err := utils.RememberToken()
 		if err != nil {
 			return err
 		}
 		user.RememberToken = token
-		var us services.UserService
-		_, err = us.Update(user)
+		_, err = u.us.Update(user)
 		if err != nil {
 			return err
 		}

@@ -14,6 +14,7 @@ import (
 var (
 	homeView    *views.View
 	profileView *views.View
+	us          services.UserService
 )
 
 func homeFunc(w http.ResponseWriter, r *http.Request) {
@@ -28,7 +29,6 @@ func profileFunc(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	var us services.UserService
 	user, err := us.ByRemember(cookie.Value)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -46,11 +46,16 @@ func pageNotFoundFunc(w http.ResponseWriter, r *http.Request) {
 func init() {
 	homeView = views.New("home")
 	profileView = views.New("users/profile")
+	var err error
+	us, err = services.NewUserService()
+	must(err)
 }
 
 func main() {
 	router := mux.NewRouter()
-	usersC := controllers.NewUsers()
+	usersC := controllers.NewUsers(us)
+	us.DestructiveReset()
+	us.AutoMigrate()
 	router.HandleFunc("/", homeFunc)
 	router.HandleFunc("/profile", profileFunc).Methods("GET")
 	router.HandleFunc("/signup", usersC.New).Methods("GET")
