@@ -19,7 +19,17 @@ var (
 
 func homeFunc(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	must(homeView.Render(w, "index", nil))
+	cookie, err := r.Cookie("remember_token")
+	if err != nil {
+		must(homeView.Render(w, "index", nil))
+		return
+	}
+	user, err := us.ByRemember(cookie.Value)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	must(homeView.Render(w, "index", user))
 }
 
 func profileFunc(w http.ResponseWriter, r *http.Request) {
