@@ -78,14 +78,18 @@ func NewUserService() (UserService, error) {
 
 // AutoMigrate the schema of database if needed
 func (us *userService) AutoMigrate() {
+	if db.EnvVars["IS_PRODUCTION"] == "true" {
 	us.db.DB.AutoMigrate(&models.User{})
 	us.db.DB.AutoMigrate(&models.Follow{})
+	}
 }
 
 // DestructiveReset drops all tables
 func (us *userService) DestructiveReset() {
-	us.db.DB.DropTableIfExists(&models.User{})
-	us.db.DB.DropTableIfExists(&models.Follow{})
+	if db.EnvVars["IS_PRODUCTION"] == "true" {
+		us.db.DB.DropTableIfExists(&models.User{})
+		us.db.DB.DropTableIfExists(&models.Follow{})
+	}
 }
 
 // Close closes the db connection

@@ -43,7 +43,9 @@ func New() (*Database, error) {
 		return nil, err
 	}
 	db.DB().SetMaxIdleConns(3)
-	db.LogMode(true)
+	if EnvVars["IS_PRODUCTION"] == "false" {
+		db.LogMode(true)
+	}
 	if err := db.DB().Ping(); err != nil {
 		return nil, err
 	}
