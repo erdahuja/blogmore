@@ -97,6 +97,9 @@ func (us *userService) Close() error {
 // if user found, return user
 // if any other error, return error with more information
 func (us *userService) ByID(id uint) (*models.User, error) {
+	if id <= 0 {
+		return nil, ErrInvalidID
+	}
 	var user models.User
 	dbi := us.db.DB.Where("id=?", id)
 	err := db.First(dbi, &user)
@@ -159,11 +162,11 @@ func (us *userService) Update(user *models.User) (*models.User, error) {
 }
 
 // Delete user record by ID
-// TODO search by email and then delete
-// func (us *userService) Delete(id uint) error {
-// 	if id == 0 {
-// 		return ErrInvalidID
-// 	}
-// 	user := models.User{Model: gorm.Model{ID: id}}
-// 	return us.db.DB.Delete(&user).Error
-// }
+func (us *userService) Delete(id uint) error {
+	var user models.User
+	if id <= 0 {
+		return ErrInvalidID
+	}
+	user.ID = id
+	return us.db.DB.Delete(&user).Error
+}
