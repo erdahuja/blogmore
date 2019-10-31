@@ -39,6 +39,14 @@ func layoutFiles() []string {
 // Render the view
 func (v *View) Render(w http.ResponseWriter, lyt string, data interface{}) error {
 	w.Header().Set("Content-Type", "text/html")
+	switch data.(type) {
+	case Data:
+		// do nothing
+	default:
+		data = Data{
+			Yield: data,
+		}
+	}
 	if err := v.Template.ExecuteTemplate(w, lyt, data); err != nil {
 		return (err)
 	}

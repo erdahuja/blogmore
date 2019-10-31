@@ -41,9 +41,16 @@ type SignUpForm struct {
 // SignUp signs up new user
 // POST /signup API
 func (u *Users) SignUp(w http.ResponseWriter, r *http.Request) {
+	var vd views.Data
 	form := new(SignUpForm)
 	if err := utils.ParseForm(form, r); err != nil {
-		panic(err)
+		vd.Alert = &views.Alert{
+			Level:   views.AlertLvlError,
+			Message: views.AlertMsgGeneric,
+		}
+		fmt.Println(err)
+		u.NewView.Render(w, "index", vd)
+		return
 	}
 	user := models.User{
 		Username: form.Username,
@@ -52,12 +59,17 @@ func (u *Users) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 	userRecord, err := u.us.Create(&user)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		vd.Alert = &views.Alert{
+			Level:   views.AlertLvlError,
+			Message: err.Error(),
+		}
+		fmt.Println(err)
+		u.NewView.Render(w, "index", vd)
 		return
 	}
 	err = u.signIn(w, userRecord)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Redirect(w, r, "/login", http.StatusFound)
 		return
 	}
 	http.Redirect(w, r, "/profile", http.StatusFound)

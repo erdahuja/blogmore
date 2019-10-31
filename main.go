@@ -44,7 +44,9 @@ func profileFunc(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	must(profileView.Render(w, "index", user))
+	var vd views.Data
+	vd.Yield = user
+	must(profileView.Render(w, "index", vd))
 }
 
 func pageNotFoundFunc(w http.ResponseWriter, r *http.Request) {
