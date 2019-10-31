@@ -46,7 +46,7 @@ func (u *Users) SignUp(w http.ResponseWriter, r *http.Request) {
 	if err := utils.ParseForm(form, r); err != nil {
 		vd.Alert = &views.Alert{
 			Level:   views.AlertLvlError,
-			Message: views.AlertMsgGeneric,
+			Message: err.Error(),
 		}
 		fmt.Println(err)
 		u.NewView.Render(w, "index", vd)
@@ -90,22 +90,33 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 // LoginAction signs up new user
 // POST /login API
 func (u *Users) LoginAction(w http.ResponseWriter, r *http.Request) {
+	var vd views.Data
 	form := new(LoginForm)
 	if err := utils.ParseForm(form, r); err != nil {
-		panic(err)
+		vd.Alert = &views.Alert{
+			Level:   views.AlertLvlError,
+			Message: views.AlertMsgGeneric,
+		}
+		fmt.Println(err)
+		u.NewView.Render(w, "index", vd)
+		return
 	}
 	userRecord, err := u.us.Login(form.Email, form.Password)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		vd.Alert = &views.Alert{
+			Level:   views.AlertLvlError,
+			Message: err.Error(),
+		}
+		fmt.Println(err)
+		u.NewView.Render(w, "index", vd)
 		return
 	}
 	err = u.signIn(w, userRecord)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Redirect(w, r, "/login", http.StatusFound)
 		return
 	}
 	http.Redirect(w, r, "/profile", http.StatusFound)
-	fmt.Fprint(w, userRecord)
 }
 
 func (u *Users) signIn(w http.ResponseWriter, user *models.User) error {
